@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#191516">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hippo Chip Tips">
+  <title>Peppermint Hippo | Chip Tips</title>
+  <link rel="manifest" href="/manifest.webmanifest?v=14">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/styles.css?v=14">
+</head>
+<body>
+  <header class="app-header">
+    <button class="brand" data-page="home" aria-label="Peppermint Hippo Chip Tips home"><span class="brand-mark"><img src="/brand/peppermint-hippo-mark.png" alt=""></span><span class="brand-copy"><strong>Peppermint Hippo</strong><small>Chip Tips · Las Vegas</small></span></button>
+    <nav aria-label="Main navigation">
+      <button data-page="home" class="nav-button active"><span>⌂</span>Home</button>
+      <button data-page="master" class="nav-button"><span>✎</span>Enter</button>
+      <button data-page="sheets" class="nav-button"><span>▦</span>Sheets</button>
+      <button data-page="close" class="nav-button"><span>✓</span>End</button>
+      <button data-page="admin" class="nav-button"><span>⚙</span>Admin</button>
+    </nav>
+    <button id="installButton" class="install-button" hidden>Install app</button>
+  </header>
+
+  <main>
+    <section id="page-home" class="page active">
+      <div class="hero"><div><p class="eyebrow">Peppermint Hippo operations</p><h1>Chip Tips shift workspace</h1><p>Enter everything once on the Master Shift screen. All three worksheets update immediately and remain on this tablet.</p></div><div class="hero-date" id="heroDate"></div></div>
+      <div id="activeShiftCard" class="active-shift-card"></div>
+      <div class="sheet-grid home-grid">
+        <article class="sheet-card master-card"><div class="sheet-icon">✎</div><h2>Master Shift Entry</h2><p>Shift information, customer tips, and chip invoice reconciliation in one place.</p><button data-page="master">Enter shift information</button></article>
+        <article class="sheet-card"><div class="sheet-icon">▦</div><h2>Live Worksheets</h2><p>Check Chip Tips, Cage SmartTab Tip Totals, and Chip Totals Sheet at any time.</p><button data-page="sheets">View live sheets</button></article>
+        <article class="sheet-card"><div class="sheet-icon">✓</div><h2>End Shift</h2><p>Save the finished shift permanently, then start a new one without losing the completed sheets.</p><button data-page="close">Finish shift</button></article>
+      </div>
+      <section class="panel completed-section"><div class="section-heading"><div><p class="eyebrow">Saved on this tablet</p><h2>Completed shifts</h2><p>Open any finished shift, review its three sheets, or save the sheet package as a PDF again.</p></div></div><div id="completedShiftList" class="completed-shift-list"></div></section>
+      <aside class="install-card"><div class="install-icon">▣</div><div><strong>Stored only on this tablet</strong><p>The active shift saves automatically and works offline after installation.</p></div><button id="installHelp">Installation help</button></aside>
+    </section>
+
+    <section id="page-master" class="page">
+      <div class="page-heading"><div><p class="eyebrow">Enter once</p><h1>Master Shift</h1><p>Information entered here automatically populates all three worksheets.</p></div><div id="saveStatus" class="save-status"></div></div>
+      <form id="masterForm">
+        <section class="panel compact-panel">
+          <div class="section-heading"><div><h2>Shift information</h2><p>Shared by every generated worksheet.</p></div></div>
+          <div class="master-header-grid">
+            <label><span>Date</span><input id="workDate" type="date" required></label>
+            <label><span>Shift</span><select id="shiftName" required></select></label>
+            <label><span>Tip pool day</span><select id="tipPoolDay" required></select></label>
+            <label><span>Bank start</span><input id="bankStart" type="time"></label>
+            <label><span>Bank end</span><input id="bankEnd" type="time"></label>
+          </div>
+          <fieldset><legend>Cashiers and people working</legend><div id="workerChoices" class="choice-chips"></div></fieldset>
+        </section>
+
+        <section class="panel entries-panel transaction-panel">
+          <div class="section-heading"><div><h2>Transactions</h2><p>Enter each transaction once. Any numeric Transfer To value beginning with zero is shared and is included on Chip Tips with the supervisor and cashier breakdown. Normal Transfer To numbers stay on Cage SmartTab and Chip Totals, but they are not included on Chip Tips or in shared totals. Customer tip and SmartTab tip are separate amounts. Final invoice equals chip invoice with its 20 percent fee, plus the entered SmartTab tip. Check total without tip is filled automatically.</p></div><button type="button" id="addTransactionTop" class="secondary-button">＋ Add transaction</button></div>
+          <div id="transactionRows" class="transaction-rows"></div>
+          <button type="button" id="addTransactionBottom" class="add-line-button">＋ Add another transaction</button>
+          <div class="inline-totals transaction-totals"><div><span>Shared tips</span><strong id="totalTips">$0.00</strong></div><div><span>Chip invoices</span><strong id="chipInvoiceTotal">$0.00</strong></div><div><span>Chip totals with tips</span><strong id="finalInvoiceTotal">$0.00</strong></div></div>
+        </section>
+        <div class="master-actions"><button type="submit" class="secondary-button">Save now</button><button type="button" class="primary-button" data-page="sheets">View generated sheets</button></div>
+      </form>
+    </section>
+
+    <section id="page-sheets" class="page">
+      <div class="page-heading"><div><p class="eyebrow">Live generated worksheets</p><h1>Current sheets</h1><p>Every view updates from the Master Shift entries. Nothing needs to be entered twice.</p></div><div id="sheetSaveStatus" class="save-status"></div></div>
+      <div id="sheetSourceBanner"></div>
+      <div id="generatedCards" class="generated-cards"></div>
+      <section class="panel generated-preview-panel"><div id="generatedSheetPreview"></div></section>
+    </section>
+
+    <section id="page-close" class="page">
+      <div class="page-heading"><div><p class="eyebrow">End of shift</p><h1>Save this shift</h1><p>Complete the shift to keep a permanent copy on this tablet. Print all three sheets, or save them together as one PDF.</p></div><div id="closeSaveStatus" class="save-status"></div></div>
+      <div id="closeWarnings"></div>
+      <section class="close-summary"><div><span>Shared tips</span><strong id="closeTipTotal">$0.00</strong></div><div><span>Supervisor</span><strong id="closeSupervisor">$0.00</strong></div><div><span>Cashier</span><strong id="closeCashier">$0.00</strong></div><div><span>Final chip invoices with tips</span><strong id="closeGrandInvoices">$0.00</strong></div></section>
+      <section class="panel close-actions-panel">
+        <h2>Finish without losing anything</h2>
+        <p>Complete and save creates a permanent, reopenable copy of this shift. It does not erase the active shift.</p>
+        <div class="close-buttons"><button id="completeShiftButton" class="primary-button">Complete and save shift</button><button id="savePdfButton" class="secondary-button">Save three sheets as PDF</button></div>
+        <div id="completedConfirmation" class="completed-confirmation" hidden></div>
+        <div class="new-shift-zone"><div><strong>Ready for the next shift?</strong><p>The completed shift will remain in Completed Shifts after the entry screen is reset.</p></div><button id="startNewShiftButton" class="secondary-button" disabled>Start a new shift</button></div>
+      </section>
+    </section>
+
+    <section id="page-admin" class="page">
+      <div class="page-heading"><div><p class="eyebrow">Tablet settings</p><h1>Administration</h1><p>Update the choices used by the Master Shift screen.</p></div></div>
+      <div class="notice"><strong>These settings remain when a new shift starts.</strong> They are stored only on this tablet.</div>
+      <div id="adminLists" class="admin-grid"></div>
+      <section class="panel local-data-panel"><h2>Move tablet settings</h2><div class="close-buttons"><button id="exportSettingsButton" class="secondary-button">Export settings</button><label class="file-button">Import settings<input id="importSettingsInput" type="file" accept="application/json"></label></div></section>
+    </section>
+  </main>
+
+  <section id="printReport" class="print-report" aria-hidden="true"></section>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="installDialog"><button class="dialog-close" aria-label="Close">×</button><h2>Install Chip Tips</h2><div class="install-steps"><article><strong>Android</strong><ol><li>Open this page in Chrome.</li><li>Choose Install app from the menu.</li><li>Open it once while connected.</li></ol></article><article><strong>iPad</strong><ol><li>Open this page in Safari.</li><li>Tap Share.</li><li>Choose Add to Home Screen.</li></ol></article></div></dialog>
+  <dialog id="removeDialog" class="remove-dialog"><h2>Remove this information?</h2><p id="removeDialogText">This line will be permanently erased from the current shift.</p><div class="dialog-actions"><button id="cancelRemoveButton" class="secondary-button">Keep it</button><button id="confirmRemoveButton" class="danger-solid-button">Remove permanently</button></div></dialog>
+  <script src="/logic.js?v=14"></script>
+  <script src="/app.js?v=14" defer></script>
+</body>
+</html>
