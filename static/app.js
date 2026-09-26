@@ -217,7 +217,7 @@ function renderSheets(){
   renderGeneratedPreview();
 }
 function paperField(label,value){return`<span class="paper-field"><small>${label}</small><strong>${esc(value||"")}</strong></span>`;}
-function paperBrand(){return`<div class="paper-brand"><img src="/brand/peppermint-hippo-mark.png" alt=""><span><strong>PEPPERMINT HIPPO</strong><small>LAS VEGAS</small></span></div>`;}
+function paperBrand(){return`<div class="paper-brand"><img src="brand/peppermint-hippo-mark.png" alt=""><span><strong>PEPPERMINT HIPPO</strong><small>LAS VEGAS</small></span></div>`;}
 function paperRows(count,rows,renderer){return Array.from({length:Math.max(count,rows.length)},(_,index)=>renderer(rows[index],index)).join("");}
 function paperMoney(cents){return cents?money(cents):"";}
 function clubTipsForm(source){
@@ -400,7 +400,7 @@ function init(){
   renderHome();
   const initial=location.hash.slice(1);
   showPage(["home","master","sheets","close","admin"].includes(initial)?initial:"home");
-  if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(console.error);
+  if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(console.error);
 }
 window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();state.deferredInstall=event;$("#installButton").hidden=false;});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&state.shift)saveLocal(false);});

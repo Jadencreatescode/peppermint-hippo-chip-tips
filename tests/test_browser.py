@@ -82,17 +82,17 @@ async def main():
         )
         await page.reload(wait_until="networkidle")
 
-        assert await page.locator('script[src="/app.js?v=14"]').count() == 1
-        assert await page.evaluate("document.querySelector('link[rel=\"apple-touch-icon\"]').getAttribute('href')") == "/icons/apple-touch-icon-180.png"
+        assert await page.locator('script[src="app.js?v=14"]').count() == 1
+        assert await page.evaluate("document.querySelector('link[rel=\"apple-touch-icon\"]').getAttribute('href')") == "icons/apple-touch-icon-180.png"
         icon = await page.evaluate(
             """(async () => {
-                const response = await fetch('/icons/icon-maskable-512.png');
+                const response = await fetch('icons/icon-maskable-512.png');
                 const bitmap = await createImageBitmap(await response.blob());
                 return [response.status, bitmap.width, bitmap.height];
             })()"""
         )
         assert icon == [200, 512, 512], icon
-        assert await page.locator('.brand img[src="/brand/peppermint-hippo-mark.png"]').is_visible()
+        assert await page.locator('.brand img[src="brand/peppermint-hippo-mark.png"]').is_visible()
         assert await page.get_by_text("Peppermint Hippo", exact=True).is_visible()
         assert await page.get_by_text("Chip Tips · Las Vegas", exact=True).is_visible()
         assert await page.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")

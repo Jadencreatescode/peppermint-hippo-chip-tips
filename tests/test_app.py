@@ -207,7 +207,7 @@ class ChipTipsMasterTests(unittest.TestCase):
         app = (ROOT / "static" / "app.js").read_text()
         css = (ROOT / "static" / "styles.css").read_text()
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
-        self.assertIn('src="/brand/peppermint-hippo-mark.png"', html)
+        self.assertIn('src="brand/peppermint-hippo-mark.png"', html)
         self.assertIn("Peppermint Hippo", html)
         self.assertIn("Chip Tips · Las Vegas", html)
         self.assertIn("paper-brand", app)
@@ -244,12 +244,12 @@ class ChipTipsMasterTests(unittest.TestCase):
         # iOS composites onto black, so the touch icon must carry no transparency
         self.assertEqual(read_png(ROOT / "static/icons/apple-touch-icon-180.png").min_alpha(), 255)
         html = (ROOT / "static" / "index.html").read_text()
-        self.assertIn('rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png"', html)
+        self.assertIn('rel="apple-touch-icon" href="icons/apple-touch-icon-180.png"', html)
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         purposes = [icon["purpose"] for icon in manifest["icons"]]
         self.assertEqual(purposes, ["any", "any", "maskable", "maskable"])
         sources = [icon["src"] for icon in manifest["icons"]]
-        self.assertEqual(sources, ["/icons/icon-192.png", "/icons/icon-512.png", "/icons/icon-maskable-192.png", "/icons/icon-maskable-512.png"])
+        self.assertEqual(sources, ["icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"])
         # the uploaded sign stays in the project so the icons can be rebuilt
         self.assertTrue((ROOT / "assets" / "brand" / "cage-sign-source.jpeg").exists())
         self.assertTrue((ROOT / "scripts" / "build_icons.py").exists())
@@ -292,7 +292,7 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
         self.assertIn('const CACHE = "chip-tips-master-v14"', sw)
-        for asset in ["/", "/styles.css?v=14", "/logic.js?v=14", "/app.js?v=14", "/manifest.webmanifest?v=14", "/brand/peppermint-hippo-mark.png", "/brand/peppermint-hippo-logo.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/icon-maskable-192.png", "/icons/icon-maskable-512.png"]:
+        for asset in ["./", "styles.css?v=14", "logic.js?v=14", "app.js?v=14", "manifest.webmanifest?v=14", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 
