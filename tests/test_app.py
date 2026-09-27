@@ -181,7 +181,7 @@ class ChipTipsMasterTests(unittest.TestCase):
         app = (ROOT / "static" / "app.js").read_text()
         logic = (ROOT / "static" / "logic.js").read_text()
         self.assertIn('field("Check # / Tab #"', app)
-        self.assertIn('field("Customer tip / SmartTab tip"', app)
+        self.assertIn('field("Customer/SmartTab tip"', app)
         self.assertIn("Logic.pairedChipFields(tip,chip)", app)
         self.assertIn("Logic.pairShiftFields(state.shift.tipRows,state.shift.chipRows)", app)
         self.assertIn("Logic.pairShiftFields(snapshot.tipRows,snapshot.chipRows)", app)
@@ -189,6 +189,24 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertIn("chip.tab_number = checkNumber", logic)
         self.assertIn("chip.tip_smarttab = customerTip", logic)
         self.assertIn("check_number: checkNumber", logic)
+
+    def test_customer_smarttab_tip_shows_dollar_sign_and_whole_dollars(self):
+        app = (ROOT / "static" / "app.js").read_text()
+        # The old field said "Customer tip / SmartTab tip" and accepted cents.
+        # It must now say "Customer/SmartTab tip", show a leading $ sign, and
+        # only ever hold whole dollar amounts (no cents).
+        self.assertNotIn('field("Customer tip / SmartTab tip"', app)
+        self.assertIn('field("Customer/SmartTab tip"', app)
+        self.assertIn('class="money-prefix">$</span>', app)
+        self.assertIn('data-field="tip_amount" value="${esc(tipDisplayAmount(tip))}" type="number" min="0" step="1" inputmode="numeric"', app)
+        self.assertIn("function tipDisplayAmount", app)
+        # Typed input is rounded to a whole dollar before it is stored, and the
+        # visible box itself snaps to the whole number once the field blurs
+        # (change event), not on every keystroke, so mid-typed decimals like
+        # "42.5" are not mangled while the employee is still typing.
+        self.assertIn('fieldName==="tip_amount"', app)
+        self.assertIn("Math.round(Number(value))", app)
+        self.assertIn('event.type==="change"', app)
 
     def test_room_fee_is_not_part_of_the_questionnaire(self):
         html = (ROOT / "static" / "index.html").read_text()

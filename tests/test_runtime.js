@@ -110,7 +110,7 @@ for (const value of ["Jordan", "812", "100", "30"]) assert(result.entry.includes
 assert(!result.entry.includes('data-field="tab_number"'));
 assert(!result.entry.includes('data-field="tip_smarttab"'));
 assert(result.entry.includes("Check # / Tab #"));
-assert(result.entry.includes("Customer tip / SmartTab tip"));
+assert(result.entry.includes("Customer/SmartTab tip"));
 assert.strictEqual(result.pairedChipState, "812|30", "check number and customer tip fill the tab number and SmartTab tip");
 assert(!result.entry.includes("Room fee"));
 assert(result.chipTips.includes("Jordan"));

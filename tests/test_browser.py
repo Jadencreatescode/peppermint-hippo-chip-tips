@@ -103,13 +103,14 @@ async def main():
         await page.locator("#page-master.active").wait_for()
         assert await page.locator('[data-field="tab_number"], [data-field="tip_smarttab"]').count() == 0
         assert await page.get_by_text("Check # / Tab #", exact=True).count() >= 1
-        assert await page.get_by_text("Customer tip / SmartTab tip", exact=True).count() >= 1
+        assert await page.get_by_text("Customer/SmartTab tip", exact=True).count() >= 1
         assert await page.locator("input[data-field=\"check_number\"][inputmode=\"numeric\"]").count() == 2
         assert await page.locator("input[data-field=\"tip_amount\"][type=\"number\"]").count() == 2
         await page.locator('[data-field="check_number"]').first.fill("999")
         await page.locator('[data-field="tip_amount"]').first.fill("42.5")
         paired = await page.evaluate("state.shift.chipRows[0].tab_number + '|' + state.shift.chipRows[0].tip_smarttab")
-        assert paired == "999|42.5", paired
+        # tip_amount is rounded to a whole dollar on input, so 42.5 becomes 43
+        assert paired == "999|43", paired
         await page.evaluate(
             "([shift, key]) => { state.shift = shift; localStorage.setItem(key, JSON.stringify(shift)); }",
             [SHIFT, "chip_tips_active_shift_v2"],
