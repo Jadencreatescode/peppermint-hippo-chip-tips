@@ -30,6 +30,10 @@ for stale in ["124.80", "364.80"]:
 assert '"tipRows"' not in text
 assert text.count("PEPPERMINT HIPPO") == 3
 assert text.count("LAS VEGAS") == 3
+# The "Prev Pg" / "PRIOR PG" carry-forward row is obsolete now that a multi-page
+# shift prints every page in one pass, so it must be fully gone from every sheet.
+assert "Prev Pg" not in text, "the obsolete carry-forward row is still printed"
+assert "PRIOR PG" not in text, "the obsolete carry-forward row is still printed"
 
 pdf = fitz.open(PDF)
 sizes = []
@@ -46,9 +50,10 @@ assert sizes[2][0] < sizes[2][1], sizes
 
 # Printed labels must be upright. Walk every text line in the PDF text layer and
 # refuse any line whose writing direction is not horizontal, which is exactly how
-# the sideways "Prev Pg" / "Total" / "PRIOR PG" labels showed up before.
+# the sideways "Total" label showed up before. The "Prev Pg" / "PRIOR PG"
+# carry-forward row was removed entirely, so it must no longer appear at all.
 sideways = []
-labels = {"Prev Pg": 0, "Total": 0, "PRIOR PG": 0, "TOTAL": 0}
+labels = {"Total": 0, "TOTAL": 0}
 for index, page in enumerate(pdf):
     for block in page.get_text("dict")["blocks"]:
         for line in block.get("lines", []):

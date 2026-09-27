@@ -34,8 +34,10 @@ CANDIDATES = [
 CHROMIUM = next((path for path in CANDIDATES if path.exists()), None)
 
 # Labels the operator circled as printing sideways. Each must be upright and
-# centred on both axes inside its cell.
-LABELS = ["Prev Pg", "Total", "PRIOR PG", "TOTAL"]
+# centred on both axes inside its cell. The "Prev Pg" / "PRIOR PG" carry-forward
+# row was removed (the app now prints every page of a multi-page shift at once,
+# so there is nothing to carry forward), so only the Total labels remain.
+LABELS = ["Total", "TOTAL"]
 
 # Sub pixel slack for "centred". Horizontal: a 22 pixel tall, 40 pixel wide cell
 # with 1.5 pixels of horizontal imbalance is visibly off centre, so this bound is

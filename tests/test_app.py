@@ -192,8 +192,11 @@ class ChipTipsMasterTests(unittest.TestCase):
         css = (ROOT / "static" / "styles.css").read_text()
         for title in ["CLUB DANCE DOLLAR TIPS", "SUPERVISOR TAB TOTALS", "CAGE SMARTTAB TIP TOTALS", "CHIP TOTALS SHEET"]:
             self.assertIn(title, app)
-        for class_name in ["club-tips-form", "cage-smarttab-form", "chip-totals-form", "paper-field", "paper-total-row", "paper-prev-row"]:
+        for class_name in ["club-tips-form", "cage-smarttab-form", "chip-totals-form", "paper-field", "paper-total-row"]:
             self.assertIn(class_name, app)
+        self.assertNotIn("paper-prev-row", app)
+        self.assertNotIn("Prev Pg", app)
+        self.assertNotIn("PRIOR PG", app)
         self.assertIn("paperRows(25", app)
         self.assertIn("paperRows(30", app)
         self.assertIn("@page portrait-sheet", css)
@@ -260,7 +263,7 @@ class ChipTipsMasterTests(unittest.TestCase):
         # printer must always receive upright, centred text.
         self.assertNotIn("writing-mode:vertical", css)
         self.assertNotIn("rotate(180deg)", css)
-        match = re.search(r"\.paper-prev-row th:first-child,\.paper-total-row th:first-child\{([^}]*)\}", css)
+        match = re.search(r"\.paper-total-row th:first-child\{([^}]*)\}", css)
         self.assertIsNotNone(match, "the label cell rule is missing from the print stylesheet")
         declarations = match.group(1)
         for declaration in ["writing-mode:horizontal-tb", "text-align:center", "vertical-align:middle", "white-space:nowrap"]:
