@@ -82,7 +82,7 @@ async def main():
         )
         await page.reload(wait_until="networkidle")
 
-        assert await page.locator('script[src="app.js?v=17"]').count() == 1
+        assert await page.locator('script[src="app.js?v=18"]').count() == 1
         assert await page.evaluate("document.querySelector('link[rel=\"apple-touch-icon\"]').getAttribute('href')") == "icons/apple-touch-icon-180.png"
         icon = await page.evaluate(
             """(async () => {
@@ -146,7 +146,7 @@ async def main():
         await page.locator('header nav [data-page="home"]').click()
         assert await page.locator(".completed-shift-card").count() == 1
         await page.locator("#toast:not(.show)").wait_for(state="attached")
-        await page.screenshot(path=str(OUT / "completed-shift-mobile-v17.png"), full_page=True)
+        await page.screenshot(path=str(OUT / "completed-shift-mobile-v18.png"), full_page=True)
         await page.locator(".completed-shift-card [data-open-completed]").click()
         await page.get_by_text("Viewing completed shift", exact=True).wait_for()
         assert await page.locator(".club-tips-form").count() == 1
@@ -173,7 +173,7 @@ async def main():
         assert not any("364.80" in cell for cell in chip_rows[1]), chip_rows[1]
         await page.emulate_media(media="print")
         await page.pdf(
-            path=str(OUT / "chip-tips-v17-sample.pdf"),
+            path=str(OUT / "chip-tips-v18-sample.pdf"),
             print_background=True,
             prefer_css_page_size=True,
         )
@@ -193,7 +193,7 @@ async def main():
         assert await page.locator(".brand .brand-copy").is_visible()
         assert await page.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
         await page.locator("#toast:not(.show)").wait_for(state="attached")
-        await page.screenshot(path=str(OUT / "home-desktop-v17.png"), full_page=True)
+        await page.screenshot(path=str(OUT / "home-desktop-v18.png"), full_page=True)
         await browser.close()
 
     if console_errors:
@@ -203,9 +203,9 @@ async def main():
         "active_shift_preserved": True,
         "completed_shift_reopened": True,
         "new_shift_kept_archive": True,
-        "pdf": str(OUT / "chip-tips-v17-sample.pdf"),
-        "screenshot": str(OUT / "completed-shift-mobile-v17.png"),
-        "desktop_screenshot": str(OUT / "home-desktop-v17.png"),
+        "pdf": str(OUT / "chip-tips-v18-sample.pdf"),
+        "screenshot": str(OUT / "completed-shift-mobile-v18.png"),
+        "desktop_screenshot": str(OUT / "home-desktop-v18.png"),
         "console_errors": 0,
     }, indent=2))
 

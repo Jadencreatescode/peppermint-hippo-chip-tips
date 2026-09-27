@@ -241,6 +241,20 @@ class ChipTipsMasterTests(unittest.TestCase):
             css,
         )
 
+    def test_club_and_cage_thirty_lines_still_fit_one_letter_page(self):
+        css = (ROOT / "static" / "styles.css").read_text()
+        # 30 rows plus a header row must fit inside an 8.5x11 letter page with
+        # 0.3in margins on both sheets. Row height x 31 rows must stay under
+        # roughly 7.9in (8.5in page minus 0.6in of margin, minus heading/brand
+        # chrome above the table), so a fixed 0.19in-per-row print height is
+        # required for both the club and cage print tables now that both
+        # print 30 lines.
+        match = re.search(r"@media print\{.*?\.club-paper-table th,\.club-paper-table td\{height:([\d.]+)in\}\.cage-paper-table th,\.cage-paper-table td\{height:([\d.]+)in\}", css, re.S)
+        self.assertIsNotNone(match, "print row-height rule for club/cage tables is missing")
+        club_row_in, cage_row_in = float(match.group(1)), float(match.group(2))
+        self.assertLessEqual(club_row_in * 31, 7.9, "club table rows no longer fit one letter page at 30 lines")
+        self.assertLessEqual(cage_row_in * 31, 7.9, "cage table rows no longer fit one letter page at 30 lines")
+
     def test_generated_sheets_match_uploaded_paper_forms(self):
         app = (ROOT / "static" / "app.js").read_text()
         css = (ROOT / "static" / "styles.css").read_text()
@@ -253,6 +267,7 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertNotIn("PRIOR PG", app)
         self.assertIn("paperRows(25", app)
         self.assertIn("paperRows(30", app)
+        self.assertEqual(app.count("paperRows(30"), 2, "Club Dance Dollar Tips and Cage SmartTab both print 30 lines")
         self.assertIn("@page portrait-sheet", css)
         self.assertIn("@page landscape-sheet", css)
         self.assertIn("page:portrait-sheet", css)
@@ -367,8 +382,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v17"', sw)
-        for asset in ["./", "styles.css?v=17", "logic.js?v=17", "app.js?v=17", "manifest.webmanifest?v=17", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v18"', sw)
+        for asset in ["./", "styles.css?v=18", "logic.js?v=18", "app.js?v=18", "manifest.webmanifest?v=18", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 

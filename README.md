@@ -26,7 +26,7 @@ Room fee is not part of the questionnaire and is ignored even if an older saved 
 
 Older saved customer rows and chip rows are paired by row position when the unified questionnaire loads, preserving the existing entries without requiring reentry. Both directions are handled: if only the older chip row carries a tab number or SmartTab tip, that value fills the questionnaire field, so the printed sheets keep the old numbers instead of blanking them.
 
-Both Club Dance Dollar Tips and Cage SmartTab Tip Totals print a narrow line number column, one number per printed line, so a specific row can always be pointed to by number instead of by scanning down the sheet.
+Both Club Dance Dollar Tips and Cage SmartTab Tip Totals print a narrow line number column, one number per printed line, so a specific row can always be pointed to by number instead of by scanning down the sheet. Both sheets print 30 lines, and both still fit on a single 8.5 by 11 inch letter page in landscape, the same as before the line-number column and the row count increase.
 
 The completed reference sheet includes fourteen chip invoices totaling $9,800 and tips totaling $2,232. Applying the printed times 1.2 rule produces $11,760 before tips and $13,992 after tips. The handwritten $11,740 subtotal on the reference sheet does not reconcile with its rows or final total, so the app uses the mathematically correct $11,760 subtotal.
 
