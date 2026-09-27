@@ -1,5 +1,5 @@
-const CACHE = "chip-tips-master-v16";
-const SHELL = ["./", "styles.css?v=16", "logic.js?v=16", "app.js?v=16", "manifest.webmanifest?v=16", "icons/icon-192.png", "icons/icon-512.png", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"];
+const CACHE = "chip-tips-master-v17";
+const SHELL = ["./", "styles.css?v=17", "logic.js?v=17", "app.js?v=17", "manifest.webmanifest?v=17", "icons/icon-192.png", "icons/icon-512.png", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));

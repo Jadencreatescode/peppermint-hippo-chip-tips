@@ -259,6 +259,25 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertIn("page:landscape-sheet", css)
         self.assertIn("print-color-adjust:exact", css)
 
+    def test_club_and_cage_sheets_have_a_narrow_line_number_column(self):
+        app = (ROOT / "static" / "app.js").read_text()
+        # Both sheets print one row per transaction line, and each line must
+        # show its line number in a narrow leading column, matching what
+        # every line number looked like on the two printed columns.
+        match_club = re.search(r"function clubTipsForm\(source\)\{(.+?)\n\}", app, re.S)
+        self.assertIsNotNone(match_club)
+        club_body = match_club.group(1)
+        self.assertIn("<th>#</th>", club_body)
+        self.assertIn("<td>${index+1}</td>", club_body)
+        self.assertIn('colspan="2"', club_body)
+
+        match_cage = re.search(r"function cageSmartTabForm\(source\)\{(.+?)\n\}", app, re.S)
+        self.assertIsNotNone(match_cage)
+        cage_body = match_cage.group(1)
+        self.assertIn("<th>#</th>", cage_body)
+        self.assertIn("<td>${index+1}</td>", cage_body)
+        self.assertIn('colspan="2"', cage_body)
+
     def test_peppermint_hippo_branding_matches_contractor_app(self):
         html = (ROOT / "static" / "index.html").read_text()
         app = (ROOT / "static" / "app.js").read_text()
@@ -348,8 +367,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v16"', sw)
-        for asset in ["./", "styles.css?v=16", "logic.js?v=16", "app.js?v=16", "manifest.webmanifest?v=16", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v17"', sw)
+        for asset in ["./", "styles.css?v=17", "logic.js?v=17", "app.js?v=17", "manifest.webmanifest?v=17", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 
