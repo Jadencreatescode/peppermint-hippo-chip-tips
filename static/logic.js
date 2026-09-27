@@ -62,6 +62,16 @@
     return /^0\d*$/.test(String(value == null ? "" : value).trim());
   }
 
+  // The cage only carries $20 and $100 chips, so any real chip total is a whole
+  // multiple of $20 (a $100 chip is five $20s). A typed total that is not a
+  // multiple of $20 cannot be made from the chips on hand, so the entry screen
+  // flags it instead of silently accepting a number nobody could hand over.
+  function chipAmountMatchesDenominations(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) return true;
+    return Math.abs(Math.round(amount * 100) % 2000) < 1;
+  }
+
   function sharedTipRows(tipRows, chipRows) {
     const tips = Array.isArray(tipRows) ? tipRows : [];
     const chips = Array.isArray(chipRows) ? chipRows : [];
@@ -138,9 +148,9 @@
   function blankShift(dateValue) {
     return {
       version:3, work_date:dateValue || "", shift:"", tip_pool_day:"", workers:[],
-      bank_start_time:"", bank_end_time:"", tipRows:[], chipRows:[], savedAt:"", reportOpenedAt:"",
+      bank_start_time:"", bank_end_time:"", tipRows:[], chipRows:[], savedAt:"", reportOpenedAt:"", lastEditedAt:"",
     };
   }
 
-  return { amountToCents, splitCents, calculateRows, calculateChipRow, calculateChipTotals, hasTipData, hasChipData, isSharedTransfer, calculateSharedTipTotals, cleanText, pairedChipFields, pairShiftFields, printableTipRows, printableSharedTipRows, printableChipRows, upsertCompletedShift, blankShift };
+  return { amountToCents, splitCents, calculateRows, calculateChipRow, calculateChipTotals, hasTipData, hasChipData, isSharedTransfer, chipAmountMatchesDenominations, calculateSharedTipTotals, cleanText, pairedChipFields, pairShiftFields, printableTipRows, printableSharedTipRows, printableChipRows, upsertCompletedShift, blankShift };
 });

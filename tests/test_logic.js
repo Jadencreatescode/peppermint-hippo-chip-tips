@@ -138,4 +138,18 @@ const blank = logic.blankShift("2026-09-21");
 assert.strictEqual(blank.version,3);
 assert.deepStrictEqual(blank.tipRows,[]);
 assert.deepStrictEqual(blank.chipRows,[]);
+
+// Chips only come in $20s and $100s at the cage, so any real chip total is a
+// whole multiple of $20. Blank/zero is fine (nothing entered yet); anything
+// else that is not a multiple of $20 cannot be made from real chips.
+assert.strictEqual(logic.chipAmountMatchesDenominations(""), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("0"), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("20"), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("100"), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("120"), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("2000"), true);
+assert.strictEqual(logic.chipAmountMatchesDenominations("55"), false);
+assert.strictEqual(logic.chipAmountMatchesDenominations("101"), false);
+assert.strictEqual(logic.chipAmountMatchesDenominations("19.99"), false);
+
 console.log("All master sheet, tip split, chip fee, and reconciliation tests passed");

@@ -8,6 +8,8 @@ const state = {
   archives:[],
   viewingShift:null,
   viewingArchiveId:null,
+  editingArchiveId:null,
+  activeShiftBeforeEdit:null,
   currentSheet:"chip-tips",
   deferredInstall:null,
   saveTimer:null,
@@ -85,14 +87,24 @@ function saveConfig(){localStorage.setItem(CONFIG_KEY,JSON.stringify(state.confi
 function saveArchives(){localStorage.setItem(ARCHIVE_KEY,JSON.stringify(state.archives));}
 function saveLocal(show=false){
   state.shift.savedAt=new Date().toISOString();
-  localStorage.setItem(SHIFT_KEY,JSON.stringify(state.shift));
-  renderActiveShift();
-  if(show)toast("Shift saved on this tablet");
+  if(state.editingArchiveId){
+    const existing=state.archives.find(item=>item.id===state.editingArchiveId);
+    const originalCompletedAt=existing?existing.completedAt:new Date().toISOString();
+    state.shift.archive_id=state.editingArchiveId;
+    state.shift.lastEditedAt=new Date().toISOString();
+    state.archives=Logic.upsertCompletedShift(state.archives,state.shift,state.editingArchiveId,originalCompletedAt);
+    saveArchives();
+    if(show)toast("Completed shift updated");
+  }else{
+    localStorage.setItem(SHIFT_KEY,JSON.stringify(state.shift));
+    renderActiveShift();
+    if(show)toast("Shift saved on this tablet");
+  }
 }
 function scheduleSave(){
   clearTimeout(state.saveTimer);
-  if($("#saveStatus"))$("#saveStatus").textContent="Saving…";
-  state.saveTimer=setTimeout(()=>{saveLocal(false);if($("#saveStatus"))$("#saveStatus").textContent="Saved on this tablet";},300);
+  if($("#saveStatus"))$("#saveStatus").textContent=state.editingArchiveId?"Updating completed shift…":"Saving…";
+  state.saveTimer=setTimeout(()=>{saveLocal(false);if($("#saveStatus"))$("#saveStatus").textContent=state.editingArchiveId?"Completed shift updated":"Saved on this tablet";},300);
 }
 function toast(message,error=false){
   const node=$("#toast");
@@ -105,10 +117,12 @@ function toast(message,error=false){
 }
 
 function showPage(name){
+  if(name!=="master"&&state.editingArchiveId)exitEditMode();
   $$(".page").forEach(page=>page.classList.toggle("active",page.id===`page-${name}`));
   $$(".nav-button").forEach(button=>button.classList.toggle("active",button.dataset.page===name));
   if(name==="home")renderHome();
-  if(name==="master"){state.viewingShift=null;state.viewingArchiveId=null;renderMaster();}
+  if(name==="master"&&!state.editingArchiveId){state.viewingShift=null;state.viewingArchiveId=null;renderMaster();}
+  else if(name==="master")renderMaster();
   if(name==="sheets")renderSheets();
   if(name==="close")renderClose();
   if(name==="admin")renderAdmin();
@@ -136,7 +150,7 @@ function renderCompletedShifts(){
   if(!state.archives.length){root.innerHTML=`<div class="empty-state completed-empty"><strong>No completed shifts yet.</strong><p>Completed shifts will stay here with all three populated sheets.</p></div>`;return;}
   root.innerHTML=state.archives.map(record=>{
     const shift=record.shift||{},tips=Logic.calculateSharedTipTotals(shift.tipRows,shift.chipRows),chips=Logic.calculateChipTotals(shift.chipRows);
-    return `<article class="completed-shift-card"><div><small>Completed ${esc(formatTimestamp(record.completedAt))}</small><h3>${esc(shift.work_date||"No date")} · ${esc(shift.shift||"Shift not selected")}</h3><p>${esc((shift.workers||[]).join(", ")||"No people listed")}</p></div><div class="completed-shift-totals"><span>Shared tips <strong>${money(tips.tip)}</strong></span><span>Chip total <strong>${money(chips.finalInvoice)}</strong></span></div><div class="completed-shift-actions"><button class="secondary-button" data-open-completed="${esc(record.id)}">Open three sheets</button><button class="primary-button" data-print-completed="${esc(record.id)}">Save PDF again</button></div></article>`;
+    return `<article class="completed-shift-card"><div><small>Completed ${esc(formatTimestamp(record.completedAt))}${shift.lastEditedAt?` · Edited ${esc(formatTimestamp(shift.lastEditedAt))}`:""}</small><h3>${esc(shift.work_date||"No date")} · ${esc(shift.shift||"Shift not selected")}</h3><p>${esc((shift.workers||[]).join(", ")||"No people listed")}</p></div><div class="completed-shift-totals"><span>Shared tips <strong>${money(tips.tip)}</strong></span><span>Chip total <strong>${money(chips.finalInvoice)}</strong></span></div><div class="completed-shift-actions"><button class="secondary-button" data-open-completed="${esc(record.id)}">Open three sheets</button><button class="secondary-button" data-edit-completed="${esc(record.id)}">Edit</button><button class="primary-button" data-print-completed="${esc(record.id)}">Save PDF again</button></div></article>`;
   }).join("");
 }
 function formatTimestamp(value){
@@ -161,14 +175,19 @@ function renderMaster(){
   workerChips();
   alignTransactionRows();
   renderTransactionRows();
-  $("#saveStatus").textContent="Saved on this tablet";
+  $("#saveStatus").textContent=state.editingArchiveId?"Editing completed shift":"Saved on this tablet";
+  $("#masterEditBanner").innerHTML=state.editingArchiveId?`<div class="saved-source-banner"><div><strong>Editing a completed shift</strong><p>Changes here update the permanent record in Completed Shifts. The date and time of this edit are kept on the record.</p></div><button class="secondary-button" data-finish-edit>Done editing</button></div>`:"";
 }
 function field(label,html,cls=""){return`<label class="cell ${cls}"><small>${label}</small>${html}</label>`;}
+function chipDenomHint(chip){
+  if(!chip.chip_total_invoice)return"";
+  return Logic.chipAmountMatchesDenominations(chip.chip_total_invoice)?"":"Not a multiple of $20 \u2014 chips only come in $20s and $100s.";
+}
 function renderTransactionRows(){
   alignTransactionRows();
   $("#transactionRows").innerHTML=state.shift.tipRows.map((tip,index)=>{
     const chip=state.shift.chipRows[index],shared=Logic.isSharedTransfer(chip.transfer_to),split=shared?Logic.splitCents(Logic.amountToCents(tip.tip_amount)):{supervisor:0,cashier:0},calculated=Logic.calculateChipRow(chip);
-    return `<article class="transaction-row" data-index="${index}"><header class="transaction-row-header"><div><span>Transaction ${index+1}</span><strong>${esc(tip.customer_name||chip.tab_number||"New transaction")}</strong></div><button type="button" class="remove-row" data-remove-transaction="${index}" aria-label="Remove transaction ${index+1}">Remove</button></header><div class="transaction-groups"><fieldset class="transaction-group"><legend>Customer and receipt</legend><div class="transaction-grid customer-grid">${field("Customer",`<input data-field="customer_name" value="${esc(tip.customer_name)}">`,"wide-field")}${field("Drawer optional",`<input data-field="drawer_number" value="${esc(tip.drawer_number)}" inputmode="numeric">`)}${field("Check # / Tab #",`<input data-field="check_number" value="${esc(tip.check_number)}" inputmode="numeric">`)}${field("Customer tip / SmartTab tip",`<input data-field="tip_amount" value="${esc(tip.tip_amount)}" type="number" min="0" step="0.01" inputmode="decimal">`)}${field("Cover or DD",`<select data-field="entry_type"><option value="C" ${tip.entry_type==="C"?"selected":""}>Cover</option><option value="DD" ${tip.entry_type==="DD"?"selected":""}>DD</option></select>`)}${field("Card",`<select data-field="card_type"><option value="">Choose</option>${state.config.options.card_types.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.card_type?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Location",`<select data-field="location"><option value="">Choose</option>${state.config.options.locations.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.location?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Host",`<select data-field="host"><option value="">Choose</option>${state.config.options.hosts.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.host?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Closed",`<input data-field="time_closed" value="${esc(tip.time_closed)}" type="time">`)}</div></fieldset><fieldset class="transaction-group chip-group"><legend>Chip totals</legend><div class="transaction-grid chip-grid">${field("Transfer To",`<input data-field="transfer_to" value="${esc(chip.transfer_to)}" inputmode="numeric" pattern="[0-9]*" placeholder="0406 for shared">`)}${field("Chip invoice",`<input data-field="chip_total_invoice" value="${esc(chip.chip_total_invoice)}" type="number" min="0" step="0.01" inputmode="decimal">`)}</div><p class="chip-pair-note">Tab # and SmartTab tip carry the same value as Check # and Customer tip, so each one is typed in once and fills both sheets.</p><div class="transaction-result"><span class="sharing-status ${shared?"shared":"separate"}" data-result="sharingStatus"><strong>${shared?"Shared tip":"Separate tip"}</strong><small>${shared?"Transfer To starts with 0":"Not added to 75 / 25 totals"}</small></span><span>Supervisor 75% <strong data-result="supervisor">${money(split.supervisor)}</strong></span><span>Cashier 25% <strong data-result="cashier">${money(split.cashier)}</strong></span><span>Grand invoice <strong data-result="grandInvoice">${money(calculated.grandInvoice)}</strong></span><span>Total with tip <strong data-result="totalWithTip">${money(calculated.totalWithTip)}</strong></span></div></fieldset></div></article>`;
+    return `<article class="transaction-row" data-index="${index}"><header class="transaction-row-header"><div><span>Transaction ${index+1}</span><strong>${esc(tip.customer_name||chip.tab_number||"New transaction")}</strong></div><button type="button" class="remove-row" data-remove-transaction="${index}" aria-label="Remove transaction ${index+1}">Remove</button></header><div class="transaction-groups"><fieldset class="transaction-group"><legend>Customer and receipt</legend><div class="transaction-grid customer-grid">${field("Customer",`<input data-field="customer_name" value="${esc(tip.customer_name)}">`,"wide-field")}${field("Cashier number optional",`<input data-field="drawer_number" value="${esc(tip.drawer_number)}" inputmode="numeric">`)}${field("Check # / Tab #",`<input data-field="check_number" value="${esc(tip.check_number)}" inputmode="numeric">`)}${field("Customer tip / SmartTab tip",`<input data-field="tip_amount" value="${esc(tip.tip_amount)}" type="number" min="0" step="0.01" inputmode="decimal">`)}${field("Cover or DD",`<select data-field="entry_type"><option value="C" ${tip.entry_type==="C"?"selected":""}>Cover</option><option value="DD" ${tip.entry_type==="DD"?"selected":""}>DD</option></select>`)}${field("Card",`<select data-field="card_type"><option value="">Choose</option>${state.config.options.card_types.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.card_type?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Location",`<select data-field="location"><option value="">Choose</option>${state.config.options.locations.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.location?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Host",`<select data-field="host"><option value="">Choose</option>${state.config.options.hosts.map(item=>`<option value="${esc(item.value)}" ${item.value===tip.host?"selected":""}>${esc(item.value)}</option>`).join("")}</select>`)}${field("Closed",`<input data-field="time_closed" value="${esc(tip.time_closed)}" type="time">`)}</div></fieldset><fieldset class="transaction-group chip-group"><legend>Chip totals</legend><div class="transaction-grid chip-grid">${field("Transfer To",`<input data-field="transfer_to" value="${esc(chip.transfer_to)}" inputmode="numeric" pattern="[0-9]*" placeholder="0406 for shared">`)}${field("Total chips ($20s / $100s)",`<input data-field="chip_total_invoice" value="${esc(chip.chip_total_invoice)}" type="number" min="0" step="20" inputmode="numeric">`)}</div><p class="chip-pair-note">Tab # and SmartTab tip carry the same value as Check # and Customer tip, so each one is typed in once and fills both sheets.</p><p class="chip-pair-note ${chipDenomHint(chip)?"chip-denom-warning":""}" data-result="chipDenomHint">${esc(chipDenomHint(chip))}</p><div class="transaction-result"><span class="sharing-status ${shared?"shared":"separate"}" data-result="sharingStatus"><strong>${shared?"Shared tip":"Separate tip"}</strong><small>${shared?"Transfer To starts with 0":"Not added to 75 / 25 totals"}</small></span><span>Supervisor 75% <strong data-result="supervisor">${money(split.supervisor)}</strong></span><span>Cashier 25% <strong data-result="cashier">${money(split.cashier)}</strong></span><span>Grand invoice <strong data-result="grandInvoice">${money(calculated.grandInvoice)}</strong></span><span>Total with tip <strong data-result="totalWithTip">${money(calculated.totalWithTip)}</strong></span></div></fieldset></div></article>`;
   }).join("");
   updateAllTotals();
 }
@@ -194,6 +213,8 @@ function updateTransactionInput(event){
   $('[data-result="cashier"]',row).textContent=money(split.cashier);
   $('[data-result="grandInvoice"]',row).textContent=money(calculated.grandInvoice);
   $('[data-result="totalWithTip"]',row).textContent=money(calculated.totalWithTip);
+  $('[data-result="chipDenomHint"]',row).textContent=chipDenomHint(chip);
+  $('[data-result="chipDenomHint"]',row).classList.toggle("chip-denom-warning",!!chipDenomHint(chip));
   updateAllTotals();
   scheduleSave();
 }
@@ -261,6 +282,35 @@ function openCompletedShift(id){
   Logic.pairShiftFields(state.viewingShift.tipRows,state.viewingShift.chipRows);
   state.currentSheet="chip-tips";
   showPage("sheets");
+}
+function openCompletedShiftForEdit(id){
+  const record=state.archives.find(item=>item.id===id);
+  if(!record)return toast("That completed shift could not be found",true);
+  clearTimeout(state.saveTimer);
+  if(!state.editingArchiveId)state.activeShiftBeforeEdit=state.shift;
+  state.shift=clone(record.shift);
+  Logic.pairShiftFields(state.shift.tipRows,state.shift.chipRows);
+  alignTransactionRows();
+  state.editingArchiveId=id;
+  state.viewingShift=null;
+  state.viewingArchiveId=null;
+  showPage("master");
+  toast("Editing completed shift. Changes save to the permanent record.");
+}
+function exitEditMode(){
+  if(!state.editingArchiveId)return;
+  clearTimeout(state.saveTimer);
+  saveLocal(false);
+  state.shift=state.activeShiftBeforeEdit||newShift();
+  state.activeShiftBeforeEdit=null;
+  state.editingArchiveId=null;
+  alignTransactionRows();
+  renderCompletedShifts();
+}
+function finishEditingCompletedShift(){
+  exitEditMode();
+  toast("Finished editing. The completed shift record is updated.");
+  showPage("home");
 }
 function printCompletedShift(id){
   const record=state.archives.find(item=>item.id===id);
@@ -366,6 +416,8 @@ function bindEvents(){
     const view=event.target.closest("[data-view-sheet]");if(view){state.currentSheet=view.dataset.viewSheet;renderSheets();}
     const print=event.target.closest("[data-print-sheet]");if(print)renderPrint([print.dataset.printSheet]);
     const openCompleted=event.target.closest("[data-open-completed]");if(openCompleted)openCompletedShift(openCompleted.dataset.openCompleted);
+    const editCompleted=event.target.closest("[data-edit-completed]");if(editCompleted)openCompletedShiftForEdit(editCompleted.dataset.editCompleted);
+    if(event.target.closest("[data-finish-edit]"))finishEditingCompletedShift();
     const printCompleted=event.target.closest("[data-print-completed]");if(printCompleted)printCompletedShift(printCompleted.dataset.printCompleted);
     if(event.target.closest("[data-use-active-shift]"))useActiveShift();
     const transactionRemove=event.target.closest("[data-remove-transaction]");

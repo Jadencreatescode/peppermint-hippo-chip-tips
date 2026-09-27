@@ -141,6 +141,42 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertIn('data-result="grandInvoice"', entry)
         self.assertIn('data-result="totalWithTip"', entry)
 
+    def test_chip_invoice_field_is_a_chip_count_not_a_dollar_amount(self):
+        app = (ROOT / "static" / "app.js").read_text()
+        logic = (ROOT / "static" / "logic.js").read_text()
+        # The field used to say "Chip invoice" and accept cents. It is a count of
+        # physical $20 / $100 chips, so it must say so and step by whole chips.
+        self.assertNotIn('field("Chip invoice"', app)
+        self.assertIn('field("Total chips ($20s / $100s)"', app)
+        self.assertIn('data-field="chip_total_invoice" value="${esc(chip.chip_total_invoice)}" type="number" min="0" step="20" inputmode="numeric"', app)
+        self.assertIn("function chipAmountMatchesDenominations", logic)
+        self.assertIn('data-result="chipDenomHint"', app)
+        self.assertIn("chip-denom-warning", app)
+
+    def test_cashier_number_field_is_relabeled_from_drawer(self):
+        app = (ROOT / "static" / "app.js").read_text()
+        # The underlying data field stays drawer_number (existing saved shifts
+        # keep working) but the visible label must say Cashier number, not Drawer.
+        self.assertNotIn('field("Drawer optional"', app)
+        self.assertIn('field("Cashier number optional"', app)
+        self.assertIn('data-field="drawer_number"', app)
+
+    def test_completed_shifts_can_be_edited_in_place(self):
+        html = (ROOT / "static" / "index.html").read_text()
+        app = (ROOT / "static" / "app.js").read_text()
+        logic = (ROOT / "static" / "logic.js").read_text()
+        self.assertIn('id="masterEditBanner"', html)
+        self.assertIn("data-edit-completed", app)
+        self.assertIn("function openCompletedShiftForEdit", app)
+        self.assertIn("function exitEditMode", app)
+        self.assertIn("function finishEditingCompletedShift", app)
+        self.assertIn("data-finish-edit", app)
+        # Editing a completed shift must update that saved record in place,
+        # keep the original completion date, and stamp when it was edited.
+        self.assertIn("lastEditedAt", app)
+        self.assertIn("lastEditedAt", logic)
+        self.assertIn("originalCompletedAt", app)
+
     def test_check_number_and_tab_number_are_asked_for_once(self):
         app = (ROOT / "static" / "app.js").read_text()
         logic = (ROOT / "static" / "logic.js").read_text()
@@ -294,8 +330,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v15"', sw)
-        for asset in ["./", "styles.css?v=15", "logic.js?v=15", "app.js?v=15", "manifest.webmanifest?v=15", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v16"', sw)
+        for asset in ["./", "styles.css?v=16", "logic.js?v=16", "app.js?v=16", "manifest.webmanifest?v=16", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 

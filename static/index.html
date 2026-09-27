@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Hippo Chip Tips">
   <title>Peppermint Hippo | Chip Tips</title>
-  <link rel="manifest" href="manifest.webmanifest?v=15">
+  <link rel="manifest" href="manifest.webmanifest?v=16">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
   <link rel="icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
   <header class="app-header">
@@ -41,6 +41,7 @@
 
     <section id="page-master" class="page">
       <div class="page-heading"><div><p class="eyebrow">Enter once</p><h1>Master Shift</h1><p>Information entered here automatically populates all three worksheets.</p></div><div id="saveStatus" class="save-status"></div></div>
+      <div id="masterEditBanner"></div>
       <form id="masterForm">
         <section class="panel compact-panel">
           <div class="section-heading"><div><h2>Shift information</h2><p>Shared by every generated worksheet.</p></div></div>
@@ -96,7 +97,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <dialog id="installDialog"><button class="dialog-close" aria-label="Close">×</button><h2>Install Chip Tips</h2><div class="install-steps"><article><strong>Android</strong><ol><li>Open this page in Chrome.</li><li>Choose Install app from the menu.</li><li>Open it once while connected.</li></ol></article><article><strong>iPad</strong><ol><li>Open this page in Safari.</li><li>Tap Share.</li><li>Choose Add to Home Screen.</li></ol></article></div></dialog>
   <dialog id="removeDialog" class="remove-dialog"><h2>Remove this information?</h2><p id="removeDialogText">This line will be permanently erased from the current shift.</p><div class="dialog-actions"><button id="cancelRemoveButton" class="secondary-button">Keep it</button><button id="confirmRemoveButton" class="danger-solid-button">Remove permanently</button></div></dialog>
-  <script src="logic.js?v=15"></script>
-  <script src="app.js?v=15" defer></script>
+  <script src="logic.js?v=16"></script>
+  <script src="app.js?v=16" defer></script>
 </body>
 </html>
