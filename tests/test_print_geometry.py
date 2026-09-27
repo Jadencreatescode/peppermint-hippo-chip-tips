@@ -130,7 +130,7 @@ async def main():
             await page.wait_for_timeout(60)
             measured = await page.evaluate(MEASURE_JS)
             records.extend([row for row in measured if row["sheet"] == sheet_id])
-            await page.locator(f"#printReport .print-sheet.{sheet_id}").screenshot(path=str(OUT / f"print-{sheet_id}-{page_width}px-v18.png"))
+            await page.locator(f"#printReport .print-sheet.{sheet_id}").screenshot(path=str(OUT / f"print-{sheet_id}-{page_width}px-v19.png"))
         await page.emulate_media(media="screen")
         await browser.close()
 
@@ -202,9 +202,9 @@ async def main():
         "clipped_cells": 0,
         "tolerance_px": {"horizontal": TOLERANCE_X, "vertical": TOLERANCE_Y},
         "screenshots": [
-            str(OUT / "print-chip-tips-998px-v18.png"),
-            str(OUT / "print-cage-998px-v18.png"),
-            str(OUT / "print-chip-totals-758px-v18.png"),
+            str(OUT / "print-chip-tips-998px-v19.png"),
+            str(OUT / "print-cage-998px-v19.png"),
+            str(OUT / "print-chip-totals-758px-v19.png"),
         ],
     }, indent=2))
 

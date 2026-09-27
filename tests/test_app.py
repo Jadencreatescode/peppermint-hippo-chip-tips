@@ -255,6 +255,27 @@ class ChipTipsMasterTests(unittest.TestCase):
         self.assertLessEqual(club_row_in * 31, 7.9, "club table rows no longer fit one letter page at 30 lines")
         self.assertLessEqual(cage_row_in * 31, 7.9, "cage table rows no longer fit one letter page at 30 lines")
 
+    def test_mid_shift_preview_does_not_shrink_below_readable_size(self):
+        css = (ROOT / "static" / "styles.css").read_text()
+        # The mid-shift "View" preview used to be squeezed down with a
+        # mobile-only font/padding shrink and no aspect-ratio floor, so on a
+        # phone screen a wide sheet like Club Dance Dollar Tips would clip
+        # column headers ("Supervisor $" rendered as "Supervis"). The sheet
+        # must now keep a real minimum width at true readable size and the
+        # preview panel scrolls sideways instead of squeezing text, matching
+        # the same sheet the way it prints.
+        self.assertIn(".paper-landscape{aspect-ratio:11/8.5;min-width:700px}", css)
+        self.assertIn(".paper-portrait{aspect-ratio:8.5/11;min-width:520px}", css)
+        self.assertIn(".generated-preview-panel{padding:18px;overflow-x:auto;overflow-y:hidden", css)
+        # The old mobile breakpoint used to shrink table row height, padding
+        # and font size on every paper sheet; that rule must be gone so the
+        # sheet the operator views mid-shift never differs from the sheet
+        # that later prints.
+        self.assertNotIn(".paper-table th,.paper-table td{height:18px", css)
+        # Print output must still stay unaffected: it forces min-width back
+        # to 0 so a fixed-size letter page never gets a horizontal scrollbar.
+        self.assertIn("min-width:0!important", css)
+
     def test_generated_sheets_match_uploaded_paper_forms(self):
         app = (ROOT / "static" / "app.js").read_text()
         css = (ROOT / "static" / "styles.css").read_text()
@@ -382,8 +403,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v18"', sw)
-        for asset in ["./", "styles.css?v=18", "logic.js?v=18", "app.js?v=18", "manifest.webmanifest?v=18", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v19"', sw)
+        for asset in ["./", "styles.css?v=19", "logic.js?v=19", "app.js?v=19", "manifest.webmanifest?v=19", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 
