@@ -5,7 +5,7 @@ import pymupdf as fitz
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF = ROOT / "verification" / "chip-tips-v14-sample.pdf"
+PDF = ROOT / "verification" / "chip-tips-v15-sample.pdf"
 OUT = ROOT / "verification"
 
 reader = PdfReader(str(PDF))
@@ -36,10 +36,12 @@ sizes = []
 for index, page in enumerate(pdf):
     sizes.append([round(page.rect.width, 1), round(page.rect.height, 1)])
     pixmap = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
-    pixmap.save(OUT / f"page-v14-{index + 1}.png")
+    pixmap.save(OUT / f"page-v15-{index + 1}.png")
 
+# Page order matches sheetDefinitions: Club Dance Dollar Tips (landscape), Cage
+# SmartTab Tip Totals (landscape), Chip Totals Sheet (portrait).
 assert sizes[0][0] > sizes[0][1], sizes
-assert sizes[1][0] < sizes[1][1], sizes
+assert sizes[1][0] > sizes[1][1], sizes
 assert sizes[2][0] < sizes[2][1], sizes
 
 # Printed labels must be upright. Walk every text line in the PDF text layer and

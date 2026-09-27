@@ -291,8 +291,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v14"', sw)
-        for asset in ["./", "styles.css?v=14", "logic.js?v=14", "app.js?v=14", "manifest.webmanifest?v=14", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v15"', sw)
+        for asset in ["./", "styles.css?v=15", "logic.js?v=15", "app.js?v=15", "manifest.webmanifest?v=15", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 

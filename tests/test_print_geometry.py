@@ -123,12 +123,12 @@ async def main():
         # A printed sheet is laid out at its page content box width, not at phone
         # width: letter portrait with 0.3in margins is 7.9in, landscape 10.4in.
         records = []
-        for sheet_id, page_width in [("chip-tips", 998), ("cage", 758), ("chip-totals", 758)]:
+        for sheet_id, page_width in [("chip-tips", 998), ("cage", 998), ("chip-totals", 758)]:
             await page.set_viewport_size({"width": page_width, "height": 1200})
             await page.wait_for_timeout(60)
             measured = await page.evaluate(MEASURE_JS)
             records.extend([row for row in measured if row["sheet"] == sheet_id])
-            await page.locator(f"#printReport .print-sheet.{sheet_id}").screenshot(path=str(OUT / f"print-{sheet_id}-{page_width}px-v14.png"))
+            await page.locator(f"#printReport .print-sheet.{sheet_id}").screenshot(path=str(OUT / f"print-{sheet_id}-{page_width}px-v15.png"))
         await page.emulate_media(media="screen")
         await browser.close()
 
@@ -200,9 +200,9 @@ async def main():
         "clipped_cells": 0,
         "tolerance_px": {"horizontal": TOLERANCE_X, "vertical": TOLERANCE_Y},
         "screenshots": [
-            str(OUT / "print-chip-tips-998px-v14.png"),
-            str(OUT / "print-cage-758px-v14.png"),
-            str(OUT / "print-chip-totals-758px-v14.png"),
+            str(OUT / "print-chip-tips-998px-v15.png"),
+            str(OUT / "print-cage-998px-v15.png"),
+            str(OUT / "print-chip-totals-758px-v15.png"),
         ],
     }, indent=2))
 

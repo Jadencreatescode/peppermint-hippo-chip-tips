@@ -34,7 +34,7 @@ Completing a shift saves an independent snapshot in Completed Shifts on the tabl
 
 Starting a new shift is a separate action that becomes available only after the current shift has been archived. The new shift resets the entry screen while every completed shift remains available from Home.
 
-The former emergency JSON download is not part of the shift workflow. Save three sheets as PDF opens the device print screen with exactly three populated pages: the landscape Club Dance Dollar Tips and Supervisor Tab Totals form, the portrait Cage SmartTab Tip Totals form, and the portrait Chip Totals Sheet form. These layouts reproduce the uploaded paper forms, including fixed blank rows, black previous page and blocked regions, totals, the chip checker equation, and a restrained Peppermint Hippo identifier on each sheet.
+The former emergency JSON download is not part of the shift workflow. Save three sheets as PDF opens the device print screen with exactly three populated pages: the landscape Club Dance Dollar Tips and Supervisor Tab Totals form, the landscape Cage SmartTab Tip Totals form, and the portrait Chip Totals Sheet form. These layouts reproduce the uploaded paper forms, including fixed blank rows, black previous page and blocked regions, totals, the chip checker equation, and a restrained Peppermint Hippo identifier on each sheet.
 
 ## Printed sheet text alignment
 
