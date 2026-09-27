@@ -272,8 +272,20 @@ function generatedSheetHtml(type,print=false,source=sheetSource()){
   return chipTotalsForm(source);
 }
 function renderGeneratedPreview(){
-  $("#generatedSheetPreview").innerHTML=generatedSheetHtml(state.currentSheet);
+  $("#generatedSheetPreview").innerHTML=`<div class="sheet-scale-wrapper">${generatedSheetHtml(state.currentSheet)}</div>`;
   $$(".generated-card").forEach(card=>card.classList.toggle("selected",card.querySelector("[data-view-sheet]")?.dataset.viewSheet===state.currentSheet));
+  scalePreviewSheet();
+}
+function scalePreviewSheet(){
+  const wrapper=$(".sheet-scale-wrapper"),sheet=wrapper?.querySelector(".paper-sheet");
+  if(!wrapper||!sheet)return;
+  const naturalWidth=sheet.offsetWidth||sheet.getBoundingClientRect().width;
+  if(!naturalWidth)return;
+  const availableWidth=wrapper.parentElement.clientWidth;
+  const scale=Math.min(1,availableWidth/naturalWidth);
+  sheet.style.transform=`scale(${scale})`;
+  sheet.style.transformOrigin="top left";
+  wrapper.style.height=`${sheet.offsetHeight*scale}px`;
 }
 function renderPrint(types,source=sheetSource()){
   $("#printReport").innerHTML=types.map(type=>`<section class="print-sheet ${type}">${generatedSheetHtml(type,true,source)}</section>`).join("");
@@ -462,6 +474,7 @@ function init(){
   if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(console.error);
 }
 window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();state.deferredInstall=event;$("#installButton").hidden=false;});
+window.addEventListener("resize",()=>scalePreviewSheet());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&state.shift)saveLocal(false);});
 window.addEventListener("beforeunload",()=>{if(state.shift)saveLocal(false);});
 document.addEventListener("DOMContentLoaded",init);
