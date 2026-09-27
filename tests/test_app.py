@@ -246,9 +246,17 @@ class ChipTipsMasterTests(unittest.TestCase):
         # 30 rows plus a header row must fit inside an 8.5x11 letter page with
         # 0.3in margins on both sheets. Row height x 31 rows must stay under
         # roughly 7.9in (8.5in page minus 0.6in of margin, minus heading/brand
-        # chrome above the table), so a fixed 0.19in-per-row print height is
-        # required for both the club and cage print tables now that both
-        # print 30 lines.
+        # chrome above the table), so a fixed row height is required for both
+        # the club and cage print tables now that both print 30 lines. Row
+        # height was pushed up to ~0.21in/row for bold, larger print text.
+        # This exact ceiling was found by rendering real 30/25-row PDFs with
+        # every print font/size uniformly scaled up and checking actual page
+        # count and page content (a naive per-rule bump caused a hidden
+        # overflow: page count still read 3, but real rendering showed a
+        # missing row and a bled-through duplicate brand mark). A uniform
+        # 1.1x scale of the entire original print block was the verified
+        # highest scale that renders exactly 3 clean pages with every row
+        # intact; 1.15x already drops a row and duplicates the brand mark.
         match = re.search(r"@media print\{.*?\.club-paper-table th,\.club-paper-table td\{height:([\d.]+)in\}\.cage-paper-table th,\.cage-paper-table td\{height:([\d.]+)in\}", css, re.S)
         self.assertIsNotNone(match, "print row-height rule for club/cage tables is missing")
         club_row_in, cage_row_in = float(match.group(1)), float(match.group(2))
@@ -409,8 +417,8 @@ class ChipTipsMasterTests(unittest.TestCase):
         manifest = json.loads((ROOT / "static" / "manifest.webmanifest").read_text())
         self.assertEqual(manifest["display"], "standalone")
         sw = (ROOT / "static" / "sw.js").read_text()
-        self.assertIn('const CACHE = "chip-tips-master-v20"', sw)
-        for asset in ["./", "styles.css?v=20", "logic.js?v=20", "app.js?v=20", "manifest.webmanifest?v=20", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
+        self.assertIn('const CACHE = "chip-tips-master-v21"', sw)
+        for asset in ["./", "styles.css?v=21", "logic.js?v=21", "app.js?v=21", "manifest.webmanifest?v=21", "brand/peppermint-hippo-mark.png", "brand/peppermint-hippo-logo.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png"]:
             self.assertIn(f'"{asset}"', sw)
 
 
